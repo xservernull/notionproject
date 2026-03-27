@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping List</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #ffffff;
+    --surface: #fafafa;
+    --border: #ebebeb;
+    --text: #1a1a1a;
+    --muted: #aaaaaa;
+    --subtle: #f5f5f5;
+    --red: #e05555;
+    --red-bg: #fff0f0;
+    --red-border: #ffd0d0;
+    --green: #3d9e68;
+    --green-bg: #f0fff6;
+    --green-border: #c3ecd6;
+    --amber: #c87a1a;
+    --amber-bg: #fff8ee;
+    --amber-border: #fde4b8;
+    --radius: 8px;
+  }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    padding: 48px 40px;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 640px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 36px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--text);
+  }
+  .header-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .header-title { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
+  .header-sub   { font-size: 11px; color: var(--muted); }
+  .header-meta  { font-size: 11px; color: var(--muted); letter-spacing: 0.5px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 32px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 0 4px;
+  }
+  .section-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .section-count {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── Row ── */
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 3px;
+    transition: background 0.12s;
+    gap: 10px;
+  }
+  .row:hover { background: var(--subtle); }
+  .row.checked { opacity: 0.45; }
+  .row.checked .item-name { text-decoration: line-through; }
+
+  .row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Checkbox */
+  .check-btn {
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    font-size: 10px;
+    color: transparent;
+  }
+  .row.checked .check-btn {
+    background: var(--text);
+    border-color: var(--text);
+    color: #fff;
+  }
+
+  .item-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .row-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.1s;
+  }
+  .badge:hover { opacity: 0.75; }
+  .badge.open   { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
+  .badge.done   { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-border); }
+  .badge.low    { background: var(--amber-bg);  color: var(--amber); border: 1px solid var(--amber-border); }
+
+  .kaomoji {
+    font-size: 11px;
+    color: #ddd;
+    letter-spacing: -1px;
+    user-select: none;
+    font-style: italic;
+  }
+  .row.checked .kaomoji { display: none; }
+
+  .del-btn {
+    width: 18px; height: 18px;
+    background: none; border: none;
+    color: #ccc; cursor: pointer;
+    font-size: 14px; line-height: 1;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.1s, color 0.1s;
+  }
+  .row:hover .del-btn { opacity: 1; }
+  .del-btn:hover { color: var(--red); }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  /* ── Add row ── */
+  .add-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: background 0.12s, color 0.12s;
+    margin-top: 4px;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .add-row:hover { background: var(--subtle); color: #888; }
+
+  /* ── Add form ── */
+  .add-form {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 6px;
+  }
+  .add-form.open { display: flex; }
+
+  .form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .form-input {
+    flex: 1;
+    min-width: 120px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--text); }
+
+  .form-select {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  .btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.1s;
+  }
+  .btn:hover { opacity: 0.8; }
+  .btn-primary { background: var(--text); color: #fff; }
+  .btn-ghost   { background: var(--subtle); color: var(--muted); }
+
+  /* ── Add Section ── */
+  .add-section-area { margin-top: 32px; }
+  .add-section-btn {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--muted);
+    background: none; border: 1px dashed var(--border);
+    border-radius: var(--radius); padding: 9px 14px;
+    cursor: pointer; width: 100%; text-align: left;
+    transition: border-color 0.15s, color 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .add-section-btn:hover { border-color: var(--text); color: var(--text); }
+
+  .add-section-form {
+    display: none;
+    gap: 8px;
+    margin-top: 8px;
+    flex-direction: column;
+  }
+  .add-section-form.open { display: flex; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-text { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+  .clear-done-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; color: var(--muted);
+    background: none; border: none; cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: color 0.1s;
+  }
+  .clear-done-btn:hover { color: var(--red); }
+
+  /* ── Fade in ── */
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .row { animation: fadeSlide 0.18s ease both; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-title">shopping list / <em>pantry</em></div>
+        <div class="header-sub" style="margin-top:4px;">meal planner</div>
+      </div>
+      <div class="header-meta" id="summary">— items</div>
+    </div>
+  </div>
+
+  <div id="sections-container"></div>
+
+  <div class="add-section-area">
+    <button class="add-section-btn" onclick="toggleSectionForm()">+ new section</button>
+    <div class="add-section-form" id="add-section-form">
+      <input class="form-input" id="section-name-input" placeholder="section name (e.g. produce)" maxlength="40">
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="toggleSectionForm()">cancel</button>
+        <button class="btn btn-primary" onclick="addSection()">add section</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-text" id="done-count">— done</span>
+    <button class="clear-done-btn" onclick="clearDone()">clear checked ×</button>
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────
+const STORAGE_KEY = 'shopping_list_v1';
+const KAOMOJI = ['(¬\'_\'¬)', '(￣^￣)', '(°▽°)', '(˘▾˘)'];
+
+const STATUS_CYCLE = ['open', 'low', 'done'];
+const STATUS_LABELS = { open: 'OPEN', low: 'LOW', done: 'DONE' };
+
+let state = loadState();
+
+function defaultState() {
+  return {
+    sections: [
+      {
+        id: uid(), label: 'staples',
+        items: [
+          { id: uid(), name: 'rice',           status: 'open', checked: false },
+          { id: uid(), name: 'oats',           status: 'open', checked: false },
+          { id: uid(), name: 'eggs',           status: 'open', checked: false },
+          { id: uid(), name: 'chicken breast', status: 'open', checked: false },
+        ]
+      },
+      {
+        id: uid(), label: 'extras',
+        items: [
+          { id: uid(), name: 'olive oil', status: 'done', checked: false },
+          { id: uid(), name: 'salt',      status: 'low',  checked: false },
+        ]
+      }
+    ]
+  };
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return defaultState();
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ── Render ─────────────────────────────────────────────
+function render() {
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+
+  state.sections.forEach((section, si) => {
+    const total   = section.items.length;
+    const checked = section.items.filter(i => i.checked).length;
+
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    sec.dataset.sectionId = section.id;
+
+    sec.innerHTML = `
+      <div class="section-header">
+        <span class="section-label">${escHtml(section.label)}</span>
+        <span class="section-count">${checked}/${total}</span>
+      </div>
+      <div class="items-list" id="items-${section.id}"></div>
+      <button class="add-row" onclick="toggleAddForm('${section.id}')">+ new item</button>
+      <div class="add-form" id="form-${section.id}">
+        <div class="form-row">
+          <input class="form-input" id="input-name-${section.id}" placeholder="item name" maxlength="60">
+          <select class="form-select" id="input-status-${section.id}">
+            <option value="open">OPEN</option>
+            <option value="low">LOW</option>
+            <option value="done">DONE</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost" onclick="toggleAddForm('${section.id}')">cancel</button>
+          <button class="btn btn-primary" onclick="addItem('${section.id}')">add item</button>
+        </div>
+      </div>
+    `;
+
+    // Add divider between sections
+    if (si > 0) {
+      container.appendChild(dividerEl());
+    }
+    container.appendChild(sec);
+
+    // Render items
+    const list = sec.querySelector(`#items-${section.id}`);
+    section.items.forEach(item => {
+      list.appendChild(renderRow(section.id, item));
+    });
+  });
+
+  updateSummary();
+}
+
+function dividerEl() {
+  const d = document.createElement('div');
+  d.className = 'divider';
+  return d;
+}
+
+function renderRow(sectionId, item) {
+  const row = document.createElement('div');
+  row.className = 'row' + (item.checked ? ' checked' : '');
+  row.dataset.itemId = item.id;
+
+  const kao = KAOMOJI[Math.floor(Math.random() * KAOMOJI.length)];
+
+  row.innerHTML = `
+    <div class="row-left">
+      <button class="check-btn" onclick="toggleCheck('${sectionId}','${item.id}')" title="Mark bought">✓</button>
+      <span class="item-name">${escHtml(item.name)}</span>
+    </div>
+    <div class="row-right">
+      <span class="badge ${item.status}" onclick="cycleStatus('${sectionId}','${item.id}')" title="Click to change status">${STATUS_LABELS[item.status]}</span>
+      <span class="kaomoji">${kao}</span>
+      <button class="del-btn" onclick="deleteItem('${sectionId}','${item.id}')" title="Remove">×</button>
+    </div>
+  `;
+  return row;
+}
+
+function updateSummary() {
+  const allItems   = state.sections.flatMap(s => s.items);
+  const total      = allItems.length;
+  const done       = allItems.filter(i => i.checked).length;
+  const remaining  = total - done;
+  document.getElementById('summary').textContent  = `${remaining} remaining`;
+  document.getElementById('done-count').textContent = `${done} of ${total} checked`;
+}
+
+// ── Actions ────────────────────────────────────────────
+function toggleCheck(sectionId, itemId) {
+  const item = findItem(sectionId, itemId);
+  if (item) { item.checked = !item.checked; saveState(); render(); }
+}
+
+function cycleStatus(sectionId, itemId) {
+  const item = findItem(sectionId, itemId);
+  if (item) {
+    const idx = STATUS_CYCLE.indexOf(item.status);
+    item.status = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+    saveState(); render();
+  }
+}
+
+function deleteItem(sectionId, itemId) {
+  const section = findSection(sectionId);
+  if (section) {
+    section.items = section.items.filter(i => i.id !== itemId);
+    saveState(); render();
+  }
+}
+
+function toggleAddForm(sectionId) {
+  const form = document.getElementById(`form-${sectionId}`);
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) {
+    document.getElementById(`input-name-${sectionId}`).focus();
+  }
+}
+
+function addItem(sectionId) {
+  const nameEl   = document.getElementById(`input-name-${sectionId}`);
+  const statusEl = document.getElementById(`input-status-${sectionId}`);
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+
+  const section = findSection(sectionId);
+  section.items.push({ id: uid(), name, status: statusEl.value, checked: false });
+  nameEl.value = '';
+  statusEl.value = 'open';
+  saveState(); render();
+
+  // Re-open the form
+  const form = document.getElementById(`form-${sectionId}`);
+  form.classList.add('open');
+  document.getElementById(`input-name-${sectionId}`).focus();
+}
+
+function toggleSectionForm() {
+  const form = document.getElementById('add-section-form');
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) {
+    document.getElementById('section-name-input').focus();
+  }
+}
+
+function addSection() {
+  const input = document.getElementById('section-name-input');
+  const label = input.value.trim().toLowerCase();
+  if (!label) { input.focus(); return; }
+  state.sections.push({ id: uid(), label, items: [] });
+  input.value = '';
+  toggleSectionForm();
+  saveState(); render();
+}
+
+function clearDone() {
+  state.sections.forEach(s => { s.items = s.items.filter(i => !i.checked); });
+  saveState(); render();
+}
+
+// ── Helpers ────────────────────────────────────────────
+function findSection(id) { return state.sections.find(s => s.id === id); }
+function findItem(sectionId, itemId) {
+  const s = findSection(sectionId);
+  return s ? s.items.find(i => i.id === itemId) : null;
+}
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Keyboard shortcuts ─────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.add-form.open, .add-section-form.open')
+      .forEach(f => f.classList.remove('open'));
+  }
+  // Enter to submit any open add-item form
+  if (e.key === 'Enter' && e.target.classList.contains('form-input')) {
+    const formEl = e.target.closest('.add-form');
+    if (formEl) {
+      const sid = formEl.id.replace('form-', '');
+      addItem(sid);
+    }
+    const secForm = e.target.closest('.add-section-form');
+    if (secForm) addSection();
+  }
+});
+
+// ── Init ───────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
