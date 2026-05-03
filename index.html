@@ -3,574 +3,1282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shopping List</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<title>my space ♡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #ffffff;
-    --surface: #fafafa;
-    --border: #ebebeb;
-    --text: #1a1a1a;
-    --muted: #aaaaaa;
-    --subtle: #f5f5f5;
-    --red: #e05555;
-    --red-bg: #fff0f0;
-    --red-border: #ffd0d0;
-    --green: #3d9e68;
-    --green-bg: #f0fff6;
-    --green-border: #c3ecd6;
-    --amber: #c87a1a;
-    --amber-bg: #fff8ee;
-    --amber-border: #fde4b8;
-    --radius: 8px;
-  }
+:root {
+  --bg: #0d0a0b;
+  --bg2: #130d10;
+  --panel: #1e1118;
+  --panel2: #271620;
+  --panel3: #3a1f2d;
+  --border: rgba(210, 140, 165, 0.13);
+  --pink: #e8a0b4;
+  --pink-light: #f5ccd8;
+  --pink-muted: #b07888;
+  --pink-dim: rgba(232, 160, 180, 0.07);
+  --text: #f0dde4;
+  --text-muted: #8a6070;
+  --glow: rgba(232, 160, 180, 0.18);
+  --radius: 18px;
+  --radius-sm: 10px;
+  --t: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-  body {
-    font-family: 'IBM Plex Mono', monospace;
-    background: var(--bg);
-    color: var(--text);
-    padding: 48px 40px;
-    min-height: 100vh;
-  }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
 
-  .container { max-width: 640px; margin: 0 auto; }
+.app { width: 100%; height: 100vh; display: flex; flex-direction: column; }
 
-  /* ── Header ── */
-  .header {
-    margin-bottom: 36px;
-    padding-bottom: 18px;
-    border-bottom: 2px solid var(--text);
-  }
-  .header-top {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .header-title { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; }
-  .header-sub   { font-size: 11px; color: var(--muted); }
-  .header-meta  { font-size: 11px; color: var(--muted); letter-spacing: 0.5px; }
+/* ── NAV ── */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-style: italic;
+  color: var(--pink-light);
+  letter-spacing: 0.02em;
+}
+.nav-tabs {
+  display: flex;
+  gap: 3px;
+  background: var(--panel);
+  border-radius: 50px;
+  padding: 4px;
+  border: 1px solid var(--border);
+}
+.nav-tab {
+  padding: 6px 22px;
+  border-radius: 50px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Jost', sans-serif;
+  font-size: 12.5px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: var(--t);
+  letter-spacing: 0.04em;
+}
+.nav-tab.active {
+  background: var(--panel3);
+  color: var(--pink-light);
+  box-shadow: 0 0 14px var(--glow);
+}
+.nav-tab:hover:not(.active) { color: var(--pink-muted); }
+.nav-date {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
 
-  /* ── Section ── */
-  .section { margin-bottom: 32px; }
+/* ── SLIDES ── */
+.slides-wrapper { flex: 1; overflow: hidden; position: relative; }
+.slides {
+  display: flex;
+  height: 100%;
+  transition: transform 0.48s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.slide {
+  min-width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 22px 28px 28px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel3) transparent;
+}
+.slide::-webkit-scrollbar { width: 3px; }
+.slide::-webkit-scrollbar-thumb { background: var(--panel3); border-radius: 2px; }
 
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    padding: 0 4px;
-  }
-  .section-label {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .section-count {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
+/* ── CARDS ── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.card-title {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--pink-muted);
+  font-weight: 400;
+}
+.clear-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: var(--t);
+  font-family: 'Jost', sans-serif;
+  letter-spacing: 0.05em;
+}
+.clear-btn:hover { opacity: 1; color: var(--pink-muted); }
 
-  /* ── Row ── */
-  .row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 11px 14px;
-    border-radius: var(--radius);
-    margin-bottom: 3px;
-    transition: background 0.12s;
-    gap: 10px;
-  }
-  .row:hover { background: var(--subtle); }
-  .row.checked { opacity: 0.45; }
-  .row.checked .item-name { text-decoration: line-through; }
+/* ── SLIDE 1 LAYOUT ── */
+.s1-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 18px;
+  height: 100%;
+}
+.s1-left { display: flex; flex-direction: column; gap: 16px; }
+.s1-right { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; scrollbar-width: none; }
+.s1-right::-webkit-scrollbar { display: none; }
 
-  .row-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-    min-width: 0;
-  }
+/* ── CALENDAR ── */
+.cal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.cal-month {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  color: var(--pink-light);
+}
+.cal-nav {
+  display: flex;
+  gap: 6px;
+}
+.cal-btn {
+  width: 28px; height: 28px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--t);
+}
+.cal-btn:hover { border-color: var(--pink-muted); color: var(--pink); }
 
-  /* Checkbox */
-  .check-btn {
-    width: 16px; height: 16px;
-    border-radius: 4px;
-    border: 1.5px solid var(--border);
-    background: var(--bg);
-    cursor: pointer;
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, border-color 0.15s;
-    font-size: 10px;
-    color: transparent;
-  }
-  .row.checked .check-btn {
-    background: var(--text);
-    border-color: var(--text);
-    color: #fff;
-  }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.cal-dn {
+  text-align: center;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding-bottom: 8px;
+  font-weight: 400;
+}
+.cal-day {
+  text-align: center;
+  padding: 7px 3px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  transition: var(--t);
+  cursor: default;
+  user-select: none;
+}
+.cal-day:not(.empty):hover {
+  background: var(--pink-dim);
+  color: var(--pink-light);
+}
+.cal-day.today {
+  background: var(--panel3);
+  color: var(--pink-light);
+  font-weight: 500;
+  box-shadow: 0 0 10px var(--glow);
+}
 
-  .item-name {
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+/* ── PROGRESS ── */
+.prog-text { font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; margin-bottom: 7px; }
+.prog-wrap { background: var(--panel2); border-radius: 4px; height: 3px; overflow: hidden; }
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pink-muted), var(--pink));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
 
-  .row-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
+/* ── TODO ── */
+.todo-input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.todo-input {
+  flex: 1;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: var(--t);
+}
+.todo-input::placeholder { color: var(--text-muted); }
+.todo-input:focus { border-color: var(--pink-muted); background: var(--panel3); }
 
-  .badge {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    padding: 3px 8px;
-    border-radius: 5px;
-    cursor: pointer;
-    user-select: none;
-    transition: opacity 0.1s;
-  }
-  .badge:hover { opacity: 0.75; }
-  .badge.open   { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
-  .badge.done   { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-border); }
-  .badge.low    { background: var(--amber-bg);  color: var(--amber); border: 1px solid var(--amber-border); }
+.add-btn {
+  background: var(--panel3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  width: 38px;
+  color: var(--pink);
+  cursor: pointer;
+  font-size: 18px;
+  transition: var(--t);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.add-btn:hover { box-shadow: 0 0 10px var(--glow); transform: scale(1.06); }
 
-  .kaomoji {
-    font-size: 11px;
-    color: #ddd;
-    letter-spacing: -1px;
-    user-select: none;
-    font-style: italic;
-  }
-  .row.checked .kaomoji { display: none; }
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--panel3) transparent;
+}
+.todo-list::-webkit-scrollbar { width: 2px; }
+.todo-list::-webkit-scrollbar-thumb { background: var(--panel3); }
 
-  .del-btn {
-    width: 18px; height: 18px;
-    background: none; border: none;
-    color: #ccc; cursor: pointer;
-    font-size: 14px; line-height: 1;
-    border-radius: 4px;
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0;
-    transition: opacity 0.1s, color 0.1s;
-  }
-  .row:hover .del-btn { opacity: 1; }
-  .del-btn:hover { color: var(--red); }
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--panel2);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: var(--t);
+}
+.todo-item:hover { border-color: var(--border); transform: translateX(2px); }
+.todo-cb {
+  appearance: none;
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--pink-muted);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--t);
+  position: relative;
+}
+.todo-cb:checked { background: var(--pink-muted); border-color: var(--pink-muted); }
+.todo-cb:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--bg);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+.todo-label { flex: 1; font-size: 13px; color: var(--text); transition: var(--t); }
+.todo-item.done .todo-label { text-decoration: line-through; color: var(--text-muted); }
+.todo-del {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0;
+  transition: var(--t);
+  padding: 0 2px;
+  line-height: 1;
+}
+.todo-item:hover .todo-del { opacity: 0.5; }
+.todo-del:hover { opacity: 1 !important; color: var(--pink); }
 
-  /* ── Divider ── */
-  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+/* ── WEEKLY PLANNER ── */
+.weekly-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.day-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.day-name {
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  color: var(--pink-muted);
+  margin-bottom: 9px;
+  font-weight: 500;
+}
+.day-tasks { display: flex; flex-direction: column; gap: 5px; }
+.day-task-row { display: flex; align-items: center; gap: 7px; }
+.day-cb {
+  appearance: none;
+  width: 12px; height: 12px;
+  border: 1px solid var(--pink-muted);
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: var(--t);
+  position: relative;
+}
+.day-cb:checked { background: var(--pink-muted); border-color: var(--pink-muted); }
+.day-cb:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--bg);
+  font-size: 7px;
+  line-height: 1;
+}
+.day-input {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  padding: 3px 0;
+  outline: none;
+  transition: var(--t);
+  min-width: 0;
+}
+.day-input::placeholder { color: var(--text-muted); opacity: 0.4; }
+.day-input:focus { border-bottom-color: var(--border); }
 
-  /* ── Add row ── */
-  .add-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    color: var(--muted);
-    font-size: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-    cursor: pointer;
-    border-radius: var(--radius);
-    transition: background 0.12s, color 0.12s;
-    margin-top: 4px;
-    border: none; background: none; width: 100%; text-align: left;
-  }
-  .add-row:hover { background: var(--subtle); color: #888; }
+/* ── VISION BOARD ── */
+.vision-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.vision-top-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--pink-light);
+}
+.vision-top-actions { display: flex; gap: 8px; align-items: center; }
+.vision-btn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  color: var(--text-muted);
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--t);
+  letter-spacing: 0.04em;
+}
+.vision-btn:hover {
+  color: var(--pink);
+  border-color: var(--pink-muted);
+  box-shadow: 0 0 10px var(--glow);
+}
+.vision-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+.v-img-wrap {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  transition: var(--t);
+}
+.v-img-wrap:hover { transform: scale(1.02); box-shadow: 0 10px 32px rgba(0,0,0,0.45); }
+.v-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; display: block; }
+.v-img-wrap:hover img { transform: scale(1.06); }
+.v-del {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(0,0,0,0.65);
+  border: none;
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: var(--t);
+  line-height: 1;
+}
+.v-img-wrap:hover .v-del { opacity: 1; }
+.v-ph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  aspect-ratio: 1;
+  background: var(--panel);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--t);
+  color: var(--text-muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.v-ph:hover { border-color: var(--pink-muted); color: var(--pink-muted); box-shadow: 0 0 16px var(--glow); }
+#vision-file { display: none; }
 
-  /* ── Add form ── */
-  .add-form {
-    display: none;
-    flex-direction: column;
-    gap: 8px;
-    padding: 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-top: 6px;
-  }
-  .add-form.open { display: flex; }
+/* ── JOURNAL ── */
+.j-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.j-full { grid-column: 1 / -1; }
+.sec-label {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--pink-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 400;
+}
+.sec-label::before { content: '♡'; font-size: 9px; }
+.j-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.j-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.j-dot { color: var(--pink-muted); font-size: 11px; flex-shrink: 0; }
+.j-inp {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  outline: none;
+  min-width: 0;
+}
+.j-inp::placeholder { color: var(--text-muted); opacity: 0.45; }
+.j-del {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 15px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  padding: 0 2px;
+  line-height: 1;
+}
+.j-item:hover .j-del { opacity: 0.5; }
+.j-del:hover { opacity: 1 !important; color: var(--pink); }
+.add-j-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--t);
+  font-family: 'Jost', sans-serif;
+  letter-spacing: 0.04em;
+  padding: 2px 0;
+}
+.add-j-btn:hover { color: var(--pink-muted); }
+.j-textarea {
+  width: 100%;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  resize: none;
+  outline: none;
+  transition: var(--t);
+  line-height: 1.65;
+}
+.j-textarea::placeholder { color: var(--text-muted); opacity: 0.45; }
+.j-textarea:focus { border-color: var(--pink-muted); }
 
-  .form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+/* ── MOOD ── */
+.mood-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.mood-btn {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 6px 15px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--t);
+  color: var(--text-muted);
+  font-family: 'Jost', sans-serif;
+  display: flex; align-items: center; gap: 5px;
+}
+.mood-btn:hover { border-color: var(--pink-muted); box-shadow: 0 0 10px var(--glow); }
+.mood-btn.selected {
+  background: var(--panel3);
+  border-color: var(--pink-muted);
+  color: var(--pink-light);
+  box-shadow: 0 0 12px var(--glow);
+}
 
-  .form-input {
-    flex: 1;
-    min-width: 120px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    padding: 7px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .form-input:focus { border-color: var(--text); }
+/* ── MODAL ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(3px);
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 350px;
+  transform: scale(0.94) translateY(6px);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+.overlay.open .modal { transform: scale(1) translateY(0); }
+.modal-title { font-size: 12px; letter-spacing: 0.08em; color: var(--pink-muted); margin-bottom: 14px; }
+.modal-input {
+  width: 100%;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  outline: none;
+  margin-bottom: 14px;
+  transition: var(--t);
+}
+.modal-input:focus { border-color: var(--pink-muted); }
+.modal-acts { display: flex; gap: 8px; justify-content: flex-end; }
+.m-cancel {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 18px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 12.5px;
+  transition: var(--t);
+}
+.m-cancel:hover { border-color: var(--pink-muted); color: var(--text); }
+.m-ok {
+  background: var(--panel3);
+  border: 1px solid var(--pink-muted);
+  border-radius: var(--radius-sm);
+  padding: 8px 18px;
+  color: var(--pink-light);
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 12.5px;
+  transition: var(--t);
+}
+.m-ok:hover { box-shadow: 0 0 12px var(--glow); }
 
-  .form-select {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    padding: 7px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    cursor: pointer;
-  }
-
-  .form-actions { display: flex; gap: 8px; justify-content: flex-end; }
-
-  .btn {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 7px 14px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.1s;
-  }
-  .btn:hover { opacity: 0.8; }
-  .btn-primary { background: var(--text); color: #fff; }
-  .btn-ghost   { background: var(--subtle); color: var(--muted); }
-
-  /* ── Add Section ── */
-  .add-section-area { margin-top: 32px; }
-  .add-section-btn {
-    display: flex; align-items: center; gap: 8px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; color: var(--muted);
-    background: none; border: 1px dashed var(--border);
-    border-radius: var(--radius); padding: 9px 14px;
-    cursor: pointer; width: 100%; text-align: left;
-    transition: border-color 0.15s, color 0.15s;
-    letter-spacing: 0.5px;
-  }
-  .add-section-btn:hover { border-color: var(--text); color: var(--text); }
-
-  .add-section-form {
-    display: none;
-    gap: 8px;
-    margin-top: 8px;
-    flex-direction: column;
-  }
-  .add-section-form.open { display: flex; }
-
-  /* ── Footer ── */
-  .footer {
-    margin-top: 48px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .footer-text { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
-  .clear-done-btn {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px; color: var(--muted);
-    background: none; border: none; cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: color 0.1s;
-  }
-  .clear-done-btn:hover { color: var(--red); }
-
-  /* ── Fade in ── */
-  @keyframes fadeSlide {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .row { animation: fadeSlide 0.18s ease both; }
+/* ── JOURNAL TOP ── */
+.j-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.j-top-title { font-family: 'Playfair Display', serif; font-style: italic; font-size: 18px; color: var(--pink-light); }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="app">
 
-  <div class="header">
-    <div class="header-top">
-      <div>
-        <div class="header-title">shopping list / <em>pantry</em></div>
-        <div class="header-sub" style="margin-top:4px;">meal planner</div>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-logo">my space ♡</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-slide="0">calendar</button>
+      <button class="nav-tab" data-slide="1">vision board</button>
+      <button class="nav-tab" data-slide="2">journal</button>
+    </div>
+    <div class="nav-date" id="nav-date"></div>
+  </nav>
+
+  <div class="slides-wrapper">
+    <div class="slides" id="slides">
+
+      <!-- ═══ SLIDE 1: CALENDAR + PLANNING ═══ -->
+      <div class="slide" id="slide-0">
+        <div class="s1-grid">
+
+          <!-- LEFT: calendar + progress -->
+          <div class="s1-left">
+
+            <div class="card">
+              <div class="cal-top">
+                <div class="cal-nav">
+                  <button class="cal-btn" id="cal-prev">‹</button>
+                </div>
+                <span class="cal-month" id="cal-month"></span>
+                <div class="cal-nav">
+                  <button class="cal-btn" id="cal-next">›</button>
+                </div>
+              </div>
+              <div class="cal-grid" id="cal-grid"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">today's progress</span>
+              </div>
+              <div class="prog-text" id="prog-text">0 / 0 tasks done</div>
+              <div class="prog-wrap">
+                <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT: todo + weekly planner -->
+          <div class="s1-right">
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">to-do</span>
+                <button class="clear-btn" id="clear-todos">clear all</button>
+              </div>
+              <div class="todo-input-row">
+                <input class="todo-input" id="todo-inp" type="text" placeholder="add a task...">
+                <button class="add-btn" id="todo-add-btn">+</button>
+              </div>
+              <div class="todo-list" id="todo-list"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">weekly planner</span>
+                <button class="clear-btn" id="clear-planner">clear all</button>
+              </div>
+              <div class="weekly-grid" id="weekly-grid"></div>
+            </div>
+
+          </div>
+        </div>
       </div>
-      <div class="header-meta" id="summary">— items</div>
+
+      <!-- ═══ SLIDE 2: VISION BOARD ═══ -->
+      <div class="slide" id="slide-1">
+        <div class="vision-top">
+          <div class="vision-top-title">vision board</div>
+          <div class="vision-top-actions">
+            <button class="clear-btn" id="clear-vision">clear all</button>
+            <button class="vision-btn" id="v-url-btn">+ add url</button>
+            <button class="vision-btn" id="v-upload-btn">+ upload</button>
+          </div>
+        </div>
+        <input type="file" id="vision-file" accept="image/*" multiple>
+        <div class="vision-grid" id="vision-grid"></div>
+      </div>
+
+      <!-- ═══ SLIDE 3: JOURNAL ═══ -->
+      <div class="slide" id="slide-2">
+        <div class="j-top">
+          <div class="j-top-title">journal</div>
+        </div>
+        <div class="j-grid">
+
+          <!-- affirmations -->
+          <div class="card">
+            <div class="card-header">
+              <span class="sec-label">affirmations</span>
+              <button class="clear-btn" id="clear-aff">clear</button>
+            </div>
+            <div class="j-list" id="aff-list"></div>
+            <button class="add-j-btn" onclick="addJItem('aff')">+ add</button>
+          </div>
+
+          <!-- goals -->
+          <div class="card">
+            <div class="card-header">
+              <span class="sec-label">monthly goals</span>
+              <button class="clear-btn" id="clear-goals">clear</button>
+            </div>
+            <div class="j-list" id="goals-list"></div>
+            <button class="add-j-btn" onclick="addJItem('goals')">+ add</button>
+          </div>
+
+          <!-- notes full width -->
+          <div class="card j-full">
+            <div class="card-header">
+              <span class="sec-label">notes</span>
+              <button class="clear-btn" id="clear-notes">clear</button>
+            </div>
+            <textarea class="j-textarea" id="notes-ta" rows="4" placeholder="write your thoughts here..."></textarea>
+          </div>
+
+          <!-- how i feel + mood -->
+          <div class="card">
+            <div class="card-header">
+              <span class="sec-label">how do i feel today?</span>
+            </div>
+            <div class="mood-row" id="mood-row"></div>
+            <textarea class="j-textarea" id="feel-ta" rows="3" placeholder="..."></textarea>
+          </div>
+
+          <!-- gratitude -->
+          <div class="card">
+            <div class="card-header">
+              <span class="sec-label">things i'm grateful for</span>
+              <button class="clear-btn" id="clear-grat">clear</button>
+            </div>
+            <div class="j-list" id="grat-list"></div>
+            <button class="add-j-btn" onclick="addJItem('grat')">+ add</button>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
+</div>
 
-  <div id="sections-container"></div>
-
-  <div class="add-section-area">
-    <button class="add-section-btn" onclick="toggleSectionForm()">+ new section</button>
-    <div class="add-section-form" id="add-section-form">
-      <input class="form-input" id="section-name-input" placeholder="section name (e.g. produce)" maxlength="40">
-      <div class="form-actions">
-        <button class="btn btn-ghost" onclick="toggleSectionForm()">cancel</button>
-        <button class="btn btn-primary" onclick="addSection()">add section</button>
-      </div>
+<!-- URL Modal -->
+<div class="overlay" id="url-modal">
+  <div class="modal">
+    <div class="modal-title">add image via url</div>
+    <input class="modal-input" id="url-inp" type="text" placeholder="https://...">
+    <div class="modal-acts">
+      <button class="m-cancel" id="m-cancel">cancel</button>
+      <button class="m-ok" id="m-ok">add ♡</button>
     </div>
   </div>
-
-  <div class="footer">
-    <span class="footer-text" id="done-count">— done</span>
-    <button class="clear-done-btn" onclick="clearDone()">clear checked ×</button>
-  </div>
-
 </div>
 
 <script>
-// ── State ──────────────────────────────────────────────
-const STORAGE_KEY = 'shopping_list_v1';
-const KAOMOJI = ['(¬\'_\'¬)', '(￣^￣)', '(°▽°)', '(˘▾˘)'];
+// ═══════════════════════════════════════════
+// STATE & CONSTANTS
+// ═══════════════════════════════════════════
+const DAYS_SHORT = ['sun','mon','tue','wed','thu','fri','sat'];
+const MONTHS_FULL = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+const WEEKDAYS = ['monday','tuesday','wednesday','thursday','friday','weekend'];
+const MOODS = [
+  { icon: '♡', label: 'loved' },
+  { icon: '☁', label: 'cloudy' },
+  { icon: '☀', label: 'bright' },
+  { icon: '☾', label: 'calm' },
+  { icon: '✿', label: 'blooming' },
+];
 
-const STATUS_CYCLE = ['open', 'low', 'done'];
-const STATUS_LABELS = { open: 'OPEN', low: 'LOW', done: 'DONE' };
+let currentSlide = 0;
+let calOffset = 0; // months from today
 
-let state = loadState();
+let state = {
+  todos: [],
+  planner: {},       // { 'monday': ['task1','task2','task3'], 'monday_chk': [false,false,false], ... }
+  vision: [],
+  journal: {
+    aff:   ['i am enough', 'i am growing every day'],
+    goals: ['read 2 books this month', 'move my body daily'],
+    grat:  ['quiet mornings', 'the people i love']
+  },
+  notes: '',
+  feel: '',
+  mood: ''
+};
 
-function defaultState() {
-  return {
-    sections: [
-      {
-        id: uid(), label: 'staples',
-        items: [
-          { id: uid(), name: 'rice',           status: 'open', checked: false },
-          { id: uid(), name: 'oats',           status: 'open', checked: false },
-          { id: uid(), name: 'eggs',           status: 'open', checked: false },
-          { id: uid(), name: 'chicken breast', status: 'open', checked: false },
-        ]
-      },
-      {
-        id: uid(), label: 'extras',
-        items: [
-          { id: uid(), name: 'olive oil', status: 'done', checked: false },
-          { id: uid(), name: 'salt',      status: 'low',  checked: false },
-        ]
-      }
-    ]
-  };
+// ═══════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════
+function save() {
+  try { localStorage.setItem('myspace_v1', JSON.stringify(state)); } catch(e) {}
 }
-
-function uid() {
-  return Math.random().toString(36).slice(2, 9);
-}
-
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    const raw = localStorage.getItem('myspace_v1');
+    if (raw) state = Object.assign(state, JSON.parse(raw));
   } catch(e) {}
-  return defaultState();
 }
 
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function init() {
+  loadState();
+
+  // Nav date
+  const now = new Date();
+  const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+  document.getElementById('nav-date').textContent =
+    now.toLocaleDateString('en-US', opts).toLowerCase();
+
+  buildCalendar();
+  buildWeeklyPlanner();
+  renderTodos();
+  updateProgress();
+  renderVision();
+  renderJournal();
+  buildMoodPicker();
+
+  // Restore textareas
+  document.getElementById('notes-ta').value = state.notes || '';
+  document.getElementById('feel-ta').value = state.feel || '';
+
+  bindAll();
 }
 
-// ── Render ─────────────────────────────────────────────
-function render() {
-  const container = document.getElementById('sections-container');
-  container.innerHTML = '';
+// ═══════════════════════════════════════════
+// SLIDE NAVIGATION
+// ═══════════════════════════════════════════
+function goTo(idx) {
+  currentSlide = idx;
+  document.getElementById('slides').style.transform = `translateX(-${idx * 100}%)`;
+  document.querySelectorAll('.nav-tab').forEach((t, i) =>
+    t.classList.toggle('active', i === idx));
+}
 
-  state.sections.forEach((section, si) => {
-    const total   = section.items.length;
-    const checked = section.items.filter(i => i.checked).length;
+// ═══════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════
+function buildCalendar() {
+  const now = new Date();
+  const ref = new Date(now.getFullYear(), now.getMonth() + calOffset, 1);
+  const year = ref.getFullYear();
+  const month = ref.getMonth();
 
-    const sec = document.createElement('div');
-    sec.className = 'section';
-    sec.dataset.sectionId = section.id;
+  document.getElementById('cal-month').textContent =
+    `${MONTHS_FULL[month]} ${year}`;
 
-    sec.innerHTML = `
-      <div class="section-header">
-        <span class="section-label">${escHtml(section.label)}</span>
-        <span class="section-count">${checked}/${total}</span>
-      </div>
-      <div class="items-list" id="items-${section.id}"></div>
-      <button class="add-row" onclick="toggleAddForm('${section.id}')">+ new item</button>
-      <div class="add-form" id="form-${section.id}">
-        <div class="form-row">
-          <input class="form-input" id="input-name-${section.id}" placeholder="item name" maxlength="60">
-          <select class="form-select" id="input-status-${section.id}">
-            <option value="open">OPEN</option>
-            <option value="low">LOW</option>
-            <option value="done">DONE</option>
-          </select>
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-ghost" onclick="toggleAddForm('${section.id}')">cancel</button>
-          <button class="btn btn-primary" onclick="addItem('${section.id}')">add item</button>
-        </div>
-      </div>
-    `;
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
 
-    // Add divider between sections
-    if (si > 0) {
-      container.appendChild(dividerEl());
-    }
-    container.appendChild(sec);
-
-    // Render items
-    const list = sec.querySelector(`#items-${section.id}`);
-    section.items.forEach(item => {
-      list.appendChild(renderRow(section.id, item));
-    });
+  // Day names
+  DAYS_SHORT.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dn';
+    el.textContent = d;
+    grid.appendChild(el);
   });
 
-  updateSummary();
-}
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayDate = now.getDate();
+  const isCurrentMonth = month === now.getMonth() && year === now.getFullYear();
 
-function dividerEl() {
-  const d = document.createElement('div');
-  d.className = 'divider';
-  return d;
-}
-
-function renderRow(sectionId, item) {
-  const row = document.createElement('div');
-  row.className = 'row' + (item.checked ? ' checked' : '');
-  row.dataset.itemId = item.id;
-
-  const kao = KAOMOJI[Math.floor(Math.random() * KAOMOJI.length)];
-
-  row.innerHTML = `
-    <div class="row-left">
-      <button class="check-btn" onclick="toggleCheck('${sectionId}','${item.id}')" title="Mark bought">✓</button>
-      <span class="item-name">${escHtml(item.name)}</span>
-    </div>
-    <div class="row-right">
-      <span class="badge ${item.status}" onclick="cycleStatus('${sectionId}','${item.id}')" title="Click to change status">${STATUS_LABELS[item.status]}</span>
-      <span class="kaomoji">${kao}</span>
-      <button class="del-btn" onclick="deleteItem('${sectionId}','${item.id}')" title="Remove">×</button>
-    </div>
-  `;
-  return row;
-}
-
-function updateSummary() {
-  const allItems   = state.sections.flatMap(s => s.items);
-  const total      = allItems.length;
-  const done       = allItems.filter(i => i.checked).length;
-  const remaining  = total - done;
-  document.getElementById('summary').textContent  = `${remaining} remaining`;
-  document.getElementById('done-count').textContent = `${done} of ${total} checked`;
-}
-
-// ── Actions ────────────────────────────────────────────
-function toggleCheck(sectionId, itemId) {
-  const item = findItem(sectionId, itemId);
-  if (item) { item.checked = !item.checked; saveState(); render(); }
-}
-
-function cycleStatus(sectionId, itemId) {
-  const item = findItem(sectionId, itemId);
-  if (item) {
-    const idx = STATUS_CYCLE.indexOf(item.status);
-    item.status = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
-    saveState(); render();
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day' + (isCurrentMonth && d === todayDate ? ' today' : '');
+    el.textContent = d;
+    grid.appendChild(el);
   }
 }
 
-function deleteItem(sectionId, itemId) {
-  const section = findSection(sectionId);
-  if (section) {
-    section.items = section.items.filter(i => i.id !== itemId);
-    saveState(); render();
-  }
+// ═══════════════════════════════════════════
+// TODO
+// ═══════════════════════════════════════════
+function addTodo(text) {
+  if (!text.trim()) return;
+  state.todos.push({ id: Date.now(), text: text.trim(), done: false });
+  save();
+  renderTodos();
+  updateProgress();
 }
 
-function toggleAddForm(sectionId) {
-  const form = document.getElementById(`form-${sectionId}`);
-  form.classList.toggle('open');
-  if (form.classList.contains('open')) {
-    document.getElementById(`input-name-${sectionId}`).focus();
-  }
+function renderTodos() {
+  const list = document.getElementById('todo-list');
+  list.innerHTML = '';
+  state.todos.forEach((todo, i) => {
+    const item = document.createElement('div');
+    item.className = 'todo-item' + (todo.done ? ' done' : '');
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'todo-cb';
+    cb.checked = todo.done;
+    cb.addEventListener('change', () => {
+      state.todos[i].done = cb.checked;
+      save();
+      item.classList.toggle('done', cb.checked);
+      updateProgress();
+    });
+
+    const lbl = document.createElement('span');
+    lbl.className = 'todo-label';
+    lbl.textContent = todo.text;
+
+    const del = document.createElement('button');
+    del.className = 'todo-del';
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      state.todos.splice(i, 1);
+      save();
+      renderTodos();
+      updateProgress();
+    });
+
+    item.append(cb, lbl, del);
+    list.appendChild(item);
+  });
 }
 
-function addItem(sectionId) {
-  const nameEl   = document.getElementById(`input-name-${sectionId}`);
-  const statusEl = document.getElementById(`input-status-${sectionId}`);
-  const name = nameEl.value.trim();
-  if (!name) { nameEl.focus(); return; }
-
-  const section = findSection(sectionId);
-  section.items.push({ id: uid(), name, status: statusEl.value, checked: false });
-  nameEl.value = '';
-  statusEl.value = 'open';
-  saveState(); render();
-
-  // Re-open the form
-  const form = document.getElementById(`form-${sectionId}`);
-  form.classList.add('open');
-  document.getElementById(`input-name-${sectionId}`).focus();
+function updateProgress() {
+  const total = state.todos.length;
+  const done = state.todos.filter(t => t.done).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('prog-text').textContent = `${done} / ${total} tasks done`;
+  document.getElementById('prog-fill').style.width = pct + '%';
 }
 
-function toggleSectionForm() {
-  const form = document.getElementById('add-section-form');
-  form.classList.toggle('open');
-  if (form.classList.contains('open')) {
-    document.getElementById('section-name-input').focus();
-  }
-}
+// ═══════════════════════════════════════════
+// WEEKLY PLANNER
+// ═══════════════════════════════════════════
+function buildWeeklyPlanner() {
+  const grid = document.getElementById('weekly-grid');
+  grid.innerHTML = '';
 
-function addSection() {
-  const input = document.getElementById('section-name-input');
-  const label = input.value.trim().toLowerCase();
-  if (!label) { input.focus(); return; }
-  state.sections.push({ id: uid(), label, items: [] });
-  input.value = '';
-  toggleSectionForm();
-  saveState(); render();
-}
+  WEEKDAYS.forEach(day => {
+    const tasks = state.planner[day] || ['', '', ''];
+    const checks = state.planner[day + '_chk'] || [false, false, false];
 
-function clearDone() {
-  state.sections.forEach(s => { s.items = s.items.filter(i => !i.checked); });
-  saveState(); render();
-}
+    const card = document.createElement('div');
+    card.className = 'day-card';
 
-// ── Helpers ────────────────────────────────────────────
-function findSection(id) { return state.sections.find(s => s.id === id); }
-function findItem(sectionId, itemId) {
-  const s = findSection(sectionId);
-  return s ? s.items.find(i => i.id === itemId) : null;
-}
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+    const title = document.createElement('div');
+    title.className = 'day-name';
+    title.textContent = day;
+    card.appendChild(title);
 
-// ── Keyboard shortcuts ─────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.add-form.open, .add-section-form.open')
-      .forEach(f => f.classList.remove('open'));
-  }
-  // Enter to submit any open add-item form
-  if (e.key === 'Enter' && e.target.classList.contains('form-input')) {
-    const formEl = e.target.closest('.add-form');
-    if (formEl) {
-      const sid = formEl.id.replace('form-', '');
-      addItem(sid);
+    const taskWrap = document.createElement('div');
+    taskWrap.className = 'day-tasks';
+
+    for (let i = 0; i < 3; i++) {
+      const row = document.createElement('div');
+      row.className = 'day-task-row';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'day-cb';
+      cb.checked = checks[i] || false;
+      cb.addEventListener('change', () => {
+        if (!state.planner[day + '_chk']) state.planner[day + '_chk'] = [false, false, false];
+        state.planner[day + '_chk'][i] = cb.checked;
+        save();
+      });
+
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'day-input';
+      inp.placeholder = 'task';
+      inp.value = tasks[i] || '';
+      inp.addEventListener('input', () => {
+        if (!state.planner[day]) state.planner[day] = ['', '', ''];
+        state.planner[day][i] = inp.value;
+        save();
+      });
+
+      row.append(cb, inp);
+      taskWrap.appendChild(row);
     }
-    const secForm = e.target.closest('.add-section-form');
-    if (secForm) addSection();
-  }
-});
 
-// ── Init ───────────────────────────────────────────────
-render();
+    card.appendChild(taskWrap);
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════
+// VISION BOARD
+// ═══════════════════════════════════════════
+function renderVision() {
+  const grid = document.getElementById('vision-grid');
+  grid.innerHTML = '';
+
+  state.vision.forEach((src, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'v-img-wrap';
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.onerror = () => wrap.remove();
+
+    const del = document.createElement('button');
+    del.className = 'v-del';
+    del.innerHTML = '×';
+    del.title = 'remove';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      state.vision.splice(i, 1);
+      save();
+      renderVision();
+    });
+
+    wrap.append(img, del);
+    grid.appendChild(wrap);
+  });
+
+  // Always show add placeholder at end
+  const ph = document.createElement('div');
+  ph.className = 'v-ph';
+  ph.innerHTML = `<span style="font-size:20px;color:var(--pink-muted)">+</span><span>${state.vision.length === 0 ? 'add images' : 'add more'}</span>`;
+  ph.addEventListener('click', () => document.getElementById('vision-file').click());
+  grid.appendChild(ph);
+}
+
+// ═══════════════════════════════════════════
+// JOURNAL
+// ═══════════════════════════════════════════
+function renderJournal() {
+  renderJList('aff', 'aff-list', 'write an affirmation...');
+  renderJList('goals', 'goals-list', 'write a goal...');
+  renderJList('grat', 'grat-list', "something you're grateful for...");
+}
+
+function renderJList(key, listId, ph) {
+  const list = document.getElementById(listId);
+  list.innerHTML = '';
+  const items = state.journal[key] || [];
+
+  items.forEach((val, i) => {
+    const row = document.createElement('div');
+    row.className = 'j-item';
+
+    const dot = document.createElement('span');
+    dot.className = 'j-dot';
+    dot.textContent = '♡';
+
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'j-inp';
+    inp.value = val;
+    inp.placeholder = ph;
+    inp.addEventListener('input', () => {
+      state.journal[key][i] = inp.value;
+      save();
+    });
+
+    const del = document.createElement('button');
+    del.className = 'j-del';
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      state.journal[key].splice(i, 1);
+      save();
+      renderJournal();
+    });
+
+    row.append(dot, inp, del);
+    list.appendChild(row);
+  });
+}
+
+function addJItem(key) {
+  if (!state.journal[key]) state.journal[key] = [];
+  state.journal[key].push('');
+  save();
+  renderJournal();
+  setTimeout(() => {
+    const listId = { aff: 'aff-list', goals: 'goals-list', grat: 'grat-list' }[key];
+    const inputs = document.getElementById(listId).querySelectorAll('.j-inp');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 40);
+}
+
+// ═══════════════════════════════════════════
+// MOOD PICKER
+// ═══════════════════════════════════════════
+function buildMoodPicker() {
+  const row = document.getElementById('mood-row');
+  row.innerHTML = '';
+  MOODS.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'mood-btn' + (state.mood === m.icon ? ' selected' : '');
+    btn.dataset.mood = m.icon;
+    btn.innerHTML = `${m.icon} <span>${m.label}</span>`;
+    btn.addEventListener('click', () => {
+      const prev = state.mood;
+      state.mood = prev === m.icon ? '' : m.icon;
+      save();
+      buildMoodPicker();
+    });
+    row.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════
+// BIND ALL EVENTS
+// ═══════════════════════════════════════════
+function bindAll() {
+  // Slide tabs
+  document.querySelectorAll('.nav-tab').forEach(tab =>
+    tab.addEventListener('click', () => goTo(parseInt(tab.dataset.slide))));
+
+  // Calendar nav
+  document.getElementById('cal-prev').addEventListener('click', () => {
+    calOffset--;
+    buildCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', () => {
+    calOffset++;
+    buildCalendar();
+  });
+
+  // Todo add
+  const todoInp = document.getElementById('todo-inp');
+  document.getElementById('todo-add-btn').addEventListener('click', () => {
+    addTodo(todoInp.value);
+    todoInp.value = '';
+  });
+  todoInp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      addTodo(todoInp.value);
+      todoInp.value = '';
+    }
+  });
+
+  // Clear todos
+  document.getElementById('clear-todos').addEventListener('click', () => {
+    state.todos = [];
+    save();
+    renderTodos();
+    updateProgress();
+  });
+
+  // Clear planner
+  document.getElementById('clear-planner').addEventListener('click', () => {
+    state.planner = {};
+    save();
+    buildWeeklyPlanner();
+  });
+
+  // Vision upload
+  document.getElementById('v-upload-btn').addEventListener('click', () =>
+    document.getElementById('vision-file').click());
+
+  document.getElementById('vision-file').addEventListener('change', e => {
+    [...e.target.files].forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        state.vision.push(ev.target.result);
+        save();
+        renderVision();
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  });
+
+  // Vision URL modal
+  const modal = document.getElementById('url-modal');
+  const urlInp = document.getElementById('url-inp');
+
+  document.getElementById('v-url-btn').addEventListener('click', () => {
+    urlInp.value = '';
+    modal.classList.add('open');
+    setTimeout(() => urlInp.focus(), 60);
+  });
+
+  function closeModal() { modal.classList.remove('open'); }
+  function confirmUrl() {
+    const url = urlInp.value.trim();
+    if (url) { state.vision.push(url); save(); renderVision(); }
+    closeModal();
+  }
+
+  document.getElementById('m-cancel').addEventListener('click', closeModal);
+  document.getElementById('m-ok').addEventListener('click', confirmUrl);
+  urlInp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmUrl();
+    if (e.key === 'Escape') closeModal();
+  });
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  // Clear vision
+  document.getElementById('clear-vision').addEventListener('click', () => {
+    state.vision = [];
+    save();
+    renderVision();
+  });
+
+  // Journal clears
+  document.getElementById('clear-aff').addEventListener('click', () => {
+    state.journal.aff = [];
+    save();
+    renderJournal();
+  });
+  document.getElementById('clear-goals').addEventListener('click', () => {
+    state.journal.goals = [];
+    save();
+    renderJournal();
+  });
+  document.getElementById('clear-grat').addEventListener('click', () => {
+    state.journal.grat = [];
+    save();
+    renderJournal();
+  });
+  document.getElementById('clear-notes').addEventListener('click', () => {
+    document.getElementById('notes-ta').value = '';
+    state.notes = '';
+    save();
+  });
+
+  // Textarea auto-save
+  document.getElementById('notes-ta').addEventListener('input', e => {
+    state.notes = e.target.value;
+    save();
+  });
+  document.getElementById('feel-ta').addEventListener('input', e => {
+    state.feel = e.target.value;
+    save();
+  });
+}
+
+// ═══════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════
+init();
 </script>
 </body>
 </html>
